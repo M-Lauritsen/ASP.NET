@@ -12,9 +12,9 @@ namespace RazorPagesMovie.Pages.Movies
 {
     public class EditModel : PageModel
     {
-        private readonly RazorPagesMovie.Models.RazorPagesMovieContext _context;
+        private readonly RazorPagesMovieContext _context;
 
-        public EditModel(RazorPagesMovie.Models.RazorPagesMovieContext context)
+        public EditModel(RazorPagesMovieContext context)
         {
             _context = context;
         }
@@ -53,7 +53,7 @@ namespace RazorPagesMovie.Pages.Movies
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!MovieExists(Movie.ID))
+                if (!_context.Movie.Any(e => e.ID == Movie.ID))
                 {
                     return NotFound();
                 }

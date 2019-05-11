@@ -25,10 +25,14 @@ namespace RazorPagesMovie.Pages.Movies
         {
             if (id == null)
             {
-                return NotFound();
+                Movie = await _context.Movie.FirstOrDefaultAsync();
+            }
+            else
+            {
+                Movie = await _context.Movie.FirstOrDefaultAsync(m => m.ID == id);
             }
 
-            Movie = await _context.Movie.FirstOrDefaultAsync(m => m.ID == id);
+            
 
             if (Movie == null)
             {
@@ -37,22 +41,37 @@ namespace RazorPagesMovie.Pages.Movies
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        public async Task<IActionResult> OnPostAsync()
         {
-            if (id == null)
+            if (!ModelState.IsValid)
             {
-                return NotFound();
+                return Page();
             }
 
-            Movie = await _context.Movie.FindAsync(id);
+            _context.Attach(Movie).State = EntityState.Modified;
 
-            if (Movie != null)
+            try
             {
-                _context.Movie.Remove(Movie);
                 await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MovieExists(Movie.ID))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             return RedirectToPage("./Index");
+        }
+
+        private bool MovieExists(int id)
+        {
+            return _context.Movie.Any(e => e.ID == id);
         }
     }
 }
