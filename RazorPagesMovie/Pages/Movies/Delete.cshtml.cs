@@ -11,9 +11,9 @@ namespace RazorPagesMovie.Pages.Movies
 {
     public class DeleteModel : PageModel
     {
-        private readonly RazorPagesMovie.Models.RazorPagesMovieContext _context;
+        private readonly RazorPagesMovieContext _context;
 
-        public DeleteModel(RazorPagesMovie.Models.RazorPagesMovieContext context)
+        public DeleteModel(RazorPagesMovieContext context)
         {
             _context = context;
         }
@@ -25,19 +25,16 @@ namespace RazorPagesMovie.Pages.Movies
         {
             if (id == null)
             {
-                Movie = await _context.Movie.FirstOrDefaultAsync();
-            }
-            else
-            {
-                Movie = await _context.Movie.FirstOrDefaultAsync(m => m.ID == id);
+                return NotFound();
             }
 
-            
+            Movie = await _context.Movie.SingleOrDefaultAsync(m => m.ID == id);
 
             if (Movie == null)
             {
                 return NotFound();
             }
+
             return Page();
         }
 
@@ -56,7 +53,7 @@ namespace RazorPagesMovie.Pages.Movies
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!MovieExists(Movie.ID))
+                if (!_context.Movie.Any(e => e.ID == Movie.ID))
                 {
                     return NotFound();
                 }
@@ -67,11 +64,6 @@ namespace RazorPagesMovie.Pages.Movies
             }
 
             return RedirectToPage("./Index");
-        }
-
-        private bool MovieExists(int id)
-        {
-            return _context.Movie.Any(e => e.ID == id);
         }
     }
 }
